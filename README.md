@@ -13,6 +13,7 @@ To find:
 ### The Tools
 - Google Big Query used to manipulate data.
 - Google Looker Studio to analyze and visualize data.
+#### Data is taken from Kaggle with the title "COVID-19 Indonesia Dataset" by HENDRATNO.
 
 
 
