@@ -1,0 +1,56 @@
+-- 1. Jumlah total kasus Covid-19 aktif yang baru di setiap provinsi mulai dari yang terbesar
+-- Untuk pertanyaan ini, kami menambahkan filter "Location_Level" untuk memfilter lokasi khusus untuk province, tidak termasuk country
+SELECT Province, SUM(New_Active_Cases) AS Total_New_Active_Cases
+FROM COVID19_INDONESIA.Kasus_Covid19_Indonesia
+WHERE Location_Level = 'Province'
+GROUP BY Province
+ORDER BY Total_New_Active_Cases DESC;
+-- 2. Mengambil dua location iso code yang memiliki jumlah total kematian karena Covid-19 paling sedikit
+SELECT Location_ISO_Code, Province, SUM(Total_Deaths) as Total_Death_Cases
+FROM COVID19_INDONESIA.Kasus_Covid19_Indonesia
+GROUP BY Location_ISO_Code, Province
+ORDER BY Total_Death_Cases ASC
+LIMIT 2;
+-- 3. Data tanggal-tanggal ketika rate kasus recovered di Indonesia paling tinggi beserta jumlah ratenya
+SELECT Date, MAX(Case_Recovered_Rate) as Case_Recovered_Rate
+FROM COVID19_INDONESIA.Kasus_Covid19_Indonesia
+WHERE Location = 'Indonesia'
+GROUP BY Date
+ORDER BY Case_Recovered_Rate DESC;
+-- 4. Total case fatality rate and case recovered rate dari masing-masing location iso code diurutkan dari data paling rendah
+-- Algoritma pengerjaan:
+-- Mengelompokkan data berdasarkan Location_ISO_Code
+-- Ambil record paling baru berdasarkan tanggal (Date) untuk Location_ISO_Code
+-- Diurutkan Ascending
+SELECT 
+    t1.Location_ISO_Code,
+    t1.Case_Fatality_Rate,
+    t1.Case_Recovered_Rate
+FROM 
+    COVID19_INDONESIA.Kasus_Covid19_Indonesia t1
+JOIN (
+    SELECT 
+        Location_ISO_Code,
+        MAX(Date) AS Tanggal_Terbaru
+    FROM 
+        COVID19_INDONESIA.Kasus_Covid19_Indonesia
+    GROUP BY 
+        Location_ISO_Code
+) t2 ON t1.Location_ISO_Code = t2.Location_ISO_Code AND t1.Date = t2.Tanggal_Terbaru
+ORDER BY 
+    t1.Case_Fatality_Rate ASC,
+    t1.Case_Recovered_Rate ASC;
+-- 5. Data tentang tanggal-tanggal saat total kasus Covid-19 mulai menyentuh angka 30.000-an
+-- Pengurutan dimulai dari yang terkecil agar dapat melihat tanggal pertama yang mulai menyentuh angka 30.000-an
+SELECT Date, Total_Cases
+FROM 
+    COVID19_INDONESIA.Kasus_Covid19_Indonesia
+WHERE
+    Total_Cases >=30001
+ORDER BY Total_Cases ASC;
+-- 6. Jumlah data yang tercatat ketika kasus Covid-19 lebih dari atau sama dengan 30.000
+SELECT COUNT(*) AS Data_Recorded_30000_Cases
+FROM 
+    COVID19_INDONESIA.Kasus_Covid19_Indonesia
+WHERE 
+    Total_Cases >= 30000;
